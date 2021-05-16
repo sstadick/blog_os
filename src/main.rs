@@ -1,27 +1,21 @@
 #![no_std] // don't link the Rust standard library
 #![no_main] // disable Rust-level entry-points
 
+mod vga_buffer;
 use core::panic::PanicInfo;
 
 /// This function is called on panic
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
     loop {}
 }
 
-static HELLO: &[u8] = b"Hello World!";
-
+/// This function is the entry point, since the linker looks for a function
+/// named `_start` by default. Normally this would be the C runtime...?
 #[no_mangle] // don't mangle the name of this function
 pub extern "C" fn _start() -> ! {
-    // this function is the enry point, since the linker looks for a function
-    // named `_start` by default. Normally this would be the C runtime...?
-    let vga_buffer = 0xb8000 as *mut u8;
+    println!("Hello World{}", "!");
 
-    for (i, &byte) in HELLO.iter().enumerate() {
-        unsafe {
-            *vga_buffer.offset(i as isize * 2) = byte;
-            *vga_buffer.offset(i as isize * 2 + 1) = 0xb;
-        }
-    }
     loop {}
 }
